@@ -161,7 +161,7 @@ It can be found at [tcl-ExprShorthand-index-list](https://github.com/florentis/t
 
 - Includes **[TIP 282](https://core.tcl-lang.org/tips/doc/trunk/tip/282.md.html) proposals**.
 
-- Allow barewords as variables.
+- Allow barewords as variables ?
 
 - **Implement prefixes** on operators and functions to allow richer infix expressions :
 
@@ -178,9 +178,10 @@ It can be found at [tcl-ExprShorthand-index-list](https://github.com/florentis/t
             }
         }
 
-        set Module [( $z {::math::complexnumbers}* {::math::complexnumbers}conj(z) )]
+        set Module [( $z {::math::complexnumbers}* {::math::complexnumbers}conj($z) )]
 
 
 ## Copyright
+
 
 This document has been placed in the public domain.
