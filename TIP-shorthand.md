@@ -40,6 +40,13 @@ will be made equivalent to :
 
           set m [list [list 1 0 0] [list 0 1 0] [list 0 0 1]]]
 
+- Inclusion of **[TIP 282](https://core.tcl-lang.org/tips/doc/trunk/tip/282.md.html) proposals** :
+  
+As well as a little improvement to allow us to use a bareword for variable name on the left side of the assignement operator. With this, we can write :
+
+         set L [( x = 1; ($x, $x*2, $x*3) )]
+		 # set x to 1 and set L to {1 2 3}
+
 ## Example :
 Setting a variable :
 
@@ -146,6 +153,18 @@ It can be found at [tcl-ExprShorthand-index-list](https://github.com/florentis/t
      * In *ParseExpr* : In the case of OPEN_PAREN unary operator not preceded by a FUNCTION operator, create a FUNCTION operator and add a list function in the litlist. This allows to avoid the "comma out function argument" error and to return a list instead.
   * In tclBasic.c : add Tcl_ListObjCmd in the table for mathfunc.
 
+### Code for TIP282 integration 
+It can be found at [tcl-ExprShorthand-index-list-TIP282](https://github.com/florentis/tcl-ExprShorthand-index-list-TIP282). It includes all the previous additions, as well as the changes made to integrate TIP282. It should allow this syntax :
+
+      set K [( x=10; y=50; ($x*$y, $y/$x) )]
+      # will set K to {500 5}
+
+#### Principles of the changes
+
+* In tclParse.c :
+  * The code from the patch of TIP282
+  * In *ParseExpr* : The code to detect if a bareword is followed by a '=' sign and to add it to the literal list, so that it can be taken as a variable name during bytecode execution.
+
 ## Incompatibilities :
  * Main shorthand : Any proc which is named '(' will be shadowed by the shorthand. However, it will still be possible to use it, either by protecting it by a backslash '\\(', or simply, but less readable, by inserting a space between the open-bracket and the open-parenthese.
  
@@ -158,8 +177,6 @@ It can be found at [tcl-ExprShorthand-index-list](https://github.com/florentis/t
 - **Script shorthand** : In a context where a script has to be compiled (proc, lambda), the shorthand could eventually allow this syntax : 
 
          proc P args {( *expression* )}
-
-- Includes **[TIP 282](https://core.tcl-lang.org/tips/doc/trunk/tip/282.md.html) proposals**.
 
 - Allow barewords as variables ?
 
@@ -183,5 +200,6 @@ It can be found at [tcl-ExprShorthand-index-list](https://github.com/florentis/t
 ## Copyright
 
 This document has been placed in the public domain.
+
 
 
