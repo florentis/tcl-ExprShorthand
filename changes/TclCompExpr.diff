@@ -1,0 +1,69 @@
+620a621,631
+> 	int nb_paren=0;
+>     int substExpressionContext=0;
+>     Tcl_Size originalLength=numBytes;
+>     
+>     if(start[0] == '[' && start[1] == '(' ) {
+> 	// Expression substitution context
+> 	substExpressionContext=1;
+> 	start++; //skip the open bracket '[', keep the parenthese 
+> 	numBytes--;
+>     }
+> 	
+946a958
+> 		int nestSubstExprShorthand = 0;
+951c963,967
+< 		tokenPtr->type = TCL_TOKEN_COMMAND;
+---
+> 		if (numBytes > 1 && start[1] == '(') {
+> 		    tokenPtr->type = TCL_TOKEN_SUB_EXPR;
+> 		} else {
+> 			tokenPtr->type = TCL_TOKEN_COMMAND;
+> 		}
+966c982,986
+< 		    start = nestedPtr->commandStart + nestedPtr->commandSize;
+---
+> 			if (nestSubstExprShorthand == 1) {			    
+> 			    start = nestedPtr->commandStart + nestedPtr->commandSize-3;
+> 			} else {
+> 		    	start = nestedPtr->commandStart + nestedPtr->commandSize;
+> 			}
+1057c1077,1081
+< 
+---
+> 		if (substExpressionContext == 1) {
+> 			if (start[0]== '(') {
+> 		    	nb_paren++;    
+> 			}
+> 	    }
+1101a1126,1135
+> 		if (substExpressionContext == 1) {
+> 			if (start[0] == ')') {
+> 		    	nb_paren--;
+> 		        if (numBytes >= 1 && nb_paren == 0 && start[1] ==']') {
+> 					//// End of expr substitution
+> 					parsePtr->commandSize = originalLength - numBytes;
+> 					numBytes=0; // make ParseLexeme add a END node
+> 		    	}					   
+> 			}		
+> 	    }
+1879,1883c1913,1921
+< 
+<     TclParseInit(interp, start, numBytes, parsePtr);
+<     if (code == TCL_OK) {
+< 	ConvertTreeToTokens(start, numBytes,
+< 		opTree, exprParsePtr->tokenPtr, parsePtr);
+---
+> 	if (code == TCL_OK) {
+> 		if(numBytes> 1 && start[0] == '[' && start[1] == '(' ) {
+> 	    	// Expression Substitution Context : transfert the command size to parseToken.
+> 			parsePtr->commandSize = exprParsePtr->commandSize;
+> 		} else {
+>     		TclParseInit(interp, start, numBytes, parsePtr);
+>     		ConvertTreeToTokens(start, numBytes,
+> 				opTree, exprParsePtr->tokenPtr, parsePtr);
+> 		}
+1926c1964
+<     if (numBytes == 0) {
+---
+>     if (numBytes <= 0) {

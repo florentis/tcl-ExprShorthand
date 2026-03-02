@@ -1,0 +1,26 @@
+1108a1109,1123
+> 	} else if (numBytes>=2 && src[0] == '[' && src[1] == '(') {
+> 	    /* Expression substition context */
+> 		Tcl_Parse *exprParsePtr;
+> 		exprParsePtr =(Tcl_Parse *)TclStackAlloc(parsePtr->interp, sizeof(Tcl_Parse));
+> 		if (Tcl_ParseExpr(parsePtr->interp, src, numBytes, exprParsePtr) != TCL_OK) {
+> 			return TCL_ERROR;
+> 		}
+> 				
+> 		tokenPtr->type = TCL_TOKEN_SUB_EXPR;
+> 		tokenPtr->start = src;
+> 		tokenPtr->size = exprParsePtr->commandSize+2;
+> 		parsePtr->numTokens++;
+> 		src+=exprParsePtr->commandSize+2;
+> 		numBytes-=exprParsePtr->commandSize+2;
+> 		TclStackFree(parsePtr->interp, exprParsePtr);
+2257c2272,2278
+< 
+---
+> 	case TCL_TOKEN_SUB_EXPR : {
+> 	    Tcl_Obj * expressionObj;
+> 	    expressionObj = Tcl_NewStringObj(tokenPtr->start+1, tokenPtr->size-2);
+> 	    code = Tcl_ExprObj(interp, expressionObj, &appendObj);
+> 	    Tcl_DecrRefCount(expressionObj);
+> 	    break;
+> 	}
