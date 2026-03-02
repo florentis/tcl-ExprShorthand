@@ -106,9 +106,26 @@ A matrix product **with native list handling**
        return [MatrixTranspose $R]
      }
 
-Draw a rectangle on a canvas **with native list handling** 
+Draw a rectangle on a canvas with **native list handling** 
 
     .c create rect [($x, $y, $x+100, $y+100)] 
+
+Tensorial product, with **native list handling** and **TIP 282**
+
+     proc TensorialProduct {V U} {
+       lassign $V x y z
+       lassign $U u v w
+
+       return [( a11 = $x*$u;  a12 = $x*$v;  a13 = $x*$w;
+	             a21 = $y*$u;  a22 = $y*$v;  a23 = $y*$w;
+	             a31 = $z*$u;  a32 = $z*$v;  a33 = $z*$w;
+	             (($a11, $a12, $a13),
+	              ($a21, $a22, $a23),
+	              ($a31, $a32, $a33))
+		)]
+     }
+     puts [TensorialProduct {1 2 3} {3 2 1}]
+     # {{3 2 1} {6 4 2} {9 6 3}}
 
 ## Implementation
 The code is made on top of Tcl9.10a, in separated repositories, one for the main expr shorhand, the other one for the other optional features. Files tclsh.exe are compiled under cygwin above Win10 with gcc.
@@ -200,6 +217,7 @@ It can be found at [tcl-ExprShorthand-index-list-TIP282](https://github.com/flor
 ## Copyright
 
 This document has been placed in the public domain.
+
 
 
 
