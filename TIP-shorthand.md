@@ -11,11 +11,11 @@
 ------
 
 ## Abstract
-  This TIP propose to extend the Tcl syntax, in including a new rule of substitution :   
+  This TIP proposes to extend the Tcl syntax, in including a new rule of substitution :   
   ***mathematical expression substitution***. 
 
 ## Rationale
-Improving the readability of arithmetic calculations is a long term demand in Tcl. One of this first demand was [TIP 282](https://core.tcl-lang.org/tips/doc/trunk/tip/282.md). Periodically, expansive discussions about it occurs on the wiki. There were many suggestions to make things more practical : [TIP 676](https://core.tcl-lang.org/tips/doc/trunk/tip/676.md), [TIP 674](https://core.tcl-lang.org/tips/doc/trunk/tip/674.md), [TIP 672](https://core.tcl-lang.org/tips/doc/trunk/tip/672.md).
+Improving the readability of arithmetic calculations is a long term demand in Tcl. One of this first demand was [TIP 282](https://core.tcl-lang.org/tips/doc/trunk/tip/282.md). Periodically, expansive discussions about it occur on the wiki. There were many suggestions to make things more practical : [TIP 676](https://core.tcl-lang.org/tips/doc/trunk/tip/676.md), [TIP 674](https://core.tcl-lang.org/tips/doc/trunk/tip/674.md), [TIP 672](https://core.tcl-lang.org/tips/doc/trunk/tip/672.md).
 
 ## Specification
 At the Tcl parser level, the shorthand will allow this syntax :
@@ -23,14 +23,14 @@ At the Tcl parser level, the shorthand will allow this syntax :
         set A [( *expression* )]
 
 This corresponds to this new rule of substitution :
-> * **Mathematical expression substitution** : If the first caracter of a word is an open-bracket and is immediatly followed by an open-parenthese, then Tcl performs *Mathematical expression substitution*. The expression has to follows the rule of the *expr* language. It must be closed by a closed-parenthese immediately followed by a closed-bracket. 
+> * **Mathematical expression substitution** : If the first caracter of a word is an open-bracket and is immediately followed by an open-parenthese, then Tcl performs a *Mathematical expression substitution*. The expression has to follows the rules of the *expr* language. It must be closed by a closed-parenthese immediately followed by a closed-bracket. 
 
 ## Options
 - **Shorthand in array indexes** : In the context of an array variable index, the shorthand will allow this syntax :
 
          set A(( *expression* )) 1
 
-This will create in the array 'A' a key whose value will be the result of the computed expression and set it to "1"
+This will create in the array 'A' a key whose value will be the result of the computed expression.
 
 - **Native list handling** :
 
@@ -144,10 +144,10 @@ It can be found at [tcl-ExprShorthand-index-list](https://github.com/florentis/t
 
   * In TclCompExpr.c :
      * In *ParseExpr* : In the case of OPEN_PAREN unary operator not preceded by a FUNCTION operator, create a FUNCTION operator and add a list function in the litlist. This allows to avoid the "comma out function argument" error and to return a list instead.
-  * In *tclBasic.c* : add Tcl_ListObjCmd in the table for mathfunc.
+  * In tclBasic.c : add Tcl_ListObjCmd in the table for mathfunc.
 
 ## Incompatibilities :
- * Main shorthand : Any proc which is named '(' will be shadowed by the shorthand. Nevertheless, it will still be possible to use it, either by protecting it by a backslash '\(', or simply, but less readable, by inserting a space between the open bracket and the open parenthese.
+ * Main shorthand : Any proc which is named '(' will be shadowed by the shorthand. However, it will still be possible to use it, either by protecting it by a backslash '\(', or simply, but less readable, by inserting a space between the open-bracket and the open-parenthese.
  
         set A [\( protect-it with backslash to eval the '(' proc ]
       
@@ -178,10 +178,8 @@ It can be found at [tcl-ExprShorthand-index-list](https://github.com/florentis/t
             }
         }
 
-        set Module [( $z {::math::complexnumbers}* {::math::complexnumbers}conj($z) )]
-
+        set Modulus [( $z {::math::complexnumbers}* {::math::complexnumbers}conj($z) )]
 
 ## Copyright
-
 
 This document has been placed in the public domain.
