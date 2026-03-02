@@ -147,7 +147,7 @@ It can be found at [tcl-ExprShorthand-index-list](https://github.com/florentis/t
   * In tclBasic.c : add Tcl_ListObjCmd in the table for mathfunc.
 
 ## Incompatibilities :
- * Main shorthand : Any proc which is named '(' will be shadowed by the shorthand. However, it will still be possible to use it, either by protecting it by a backslash '\(', or simply, but less readable, by inserting a space between the open-bracket and the open-parenthese.
+ * Main shorthand : Any proc which is named '(' will be shadowed by the shorthand. However, it will still be possible to use it, either by protecting it by a backslash '\\(', or simply, but less readable, by inserting a space between the open-bracket and the open-parenthese.
  
         set A [\( protect-it with backslash to eval the '(' proc ]
       
@@ -183,4 +183,5 @@ It can be found at [tcl-ExprShorthand-index-list](https://github.com/florentis/t
 ## Copyright
 
 This document has been placed in the public domain.
+
 
