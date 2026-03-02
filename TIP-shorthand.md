@@ -128,7 +128,7 @@ Tensorial product, with **native list handling** and **TIP 282**
      # {{3 2 1} {6 4 2} {9 6 3}}
 
 ## Implementation
-The code is made on top of Tcl9.10a, in separated repositories, one for the main expr shorhand, the other one for the other optional features. Files tclsh.exe are compiled under cygwin above Win10 with gcc.
+The code is made on top of Tcl9.1a, in separated repositories, one for the main expr shorhand, the other one for the other optional features. Files tclsh.exe are compiled under cygwin above Win10 with gcc.
 
 ### Code for main shorthand
 It can be found at [tcl-ExprShorthand](https://github.com/florentis/tcl-ExprShorthand). It should allow this syntax :
@@ -217,6 +217,7 @@ It can be found at [tcl-ExprShorthand-index-list-TIP282](https://github.com/flor
 ## Copyright
 
 This document has been placed in the public domain.
+
 
 
 
