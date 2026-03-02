@@ -53,7 +53,7 @@ A cross product proc **with native list handling**
        return [( $y*$w - $v*$z, $w*$x - $u*$z, $x*$v - $u*$y)]		
     }
 
-Erathostem sieve :
+Eratosthenes sieve :
 
     proc sieve {n} {
        set L [lseq $n]
@@ -183,3 +183,4 @@ It can be found at [tcl-ExprShorthand-index-list](https://github.com/florentis/t
 ## Copyright
 
 This document has been placed in the public domain.
+
