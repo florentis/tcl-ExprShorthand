@@ -20,7 +20,9 @@ Improving the readability of arithmetic calculations is a long term demand in Tc
 ## Specification
 At the Tcl parser level, the shorthand will allow this syntax :
 
+```tcl
         set A [( *expression* )]
+```
 
 This corresponds to this new rule of substitution :
 > * **Mathematical expression substitution** : If the first caracter of a word is an open-bracket and is immediately followed by an open-parenthese, then Tcl performs a *Mathematical expression substitution*. The expression has to follows the rules of the *expr* language. It must be closed by a closed-parenthese immediately followed by a closed-bracket. 
@@ -28,41 +30,51 @@ This corresponds to this new rule of substitution :
 ## Options
 - **Shorthand in array indexes** : In the context of an array variable index, the shorthand will allow this syntax :
 
+```tcl
          set A(( *expression* )) 1
+```
 
 This will create in the array 'A' a key whose value will be the result of the computed expression.
 
 - **Native list handling** :
 
+```tcl
          set m [((1, 0, 0), (0, 1, 0),(0, 0, 1))]
+```
 
 will be made equivalent to :
 
+```tcl
           set m [list [list 1 0 0] [list 0 1 0] [list 0 0 1]]]
+```
 
 - Inclusion of **[TIP 282](https://core.tcl-lang.org/tips/doc/trunk/tip/282.md.html) proposals** :
   
 As well as a little improvement to allow us to use a bareword for variable name on the left side of the assignement operator. With this, we can write :
 
+```tcl
          set L [( x = 1; ($x, $x*2, $x*3) )]
 		 # set x to 1 and set L to {1 2 3}
+```
 
 ## Example :
-Setting a variable :
+- Setting a variable :
+```tcl
+set bright [($red*0.3 + $green*0.59 + $blue*0.11)]
+```
 
-``set bright [($red*0.3 + $green*0.59 + $blue*0.11)]``
-
-A cross product proc **with native list handling**
-
+- A cross product proc **with native list handling**
+```tcl
     proc crossProduct {U V} {
        lassign $U x y z
        lassign $V u v w
        return [( $y*$w - $v*$z, $w*$x - $u*$z, $x*$v - $u*$y)]		
     }
-
-Eratosthenes sieve :
-
-    proc sieve {n} {
+```
+- Eratosthenes sieve :
+  - With basic shorthand :
+  ```tcl
+     proc sieve {n} {
        set L [lseq $n]
        for {set i 2} {$i < $n} {incr i} {
           set j $i
@@ -73,9 +85,25 @@ Eratosthenes sieve :
        }
        return [lsearch -all -not -exact $L {}]
     }
+   ```
 
-A matrix product **with native list handling**
+   - with TIP282 integration :
+   ```tcl
+     proc sieve {n} {
+        set L [lseq $n]
+        for {set i 2} {(j = $i) < $n} {incr i} {
+            while {(k = $i*$j) < $n} {
+	           lset L $k {}
+	           incr j
+            }
+       }
+       return [lsearch -all -not -exact $L {}]
+    }
+   ```
 
+- A matrix product **with native list handling**
+
+```tcl
     proc MatrixTranspose {M} {
     set i 1
     foreach row $M {
@@ -105,13 +133,16 @@ A matrix product **with native list handling**
        }
        return [MatrixTranspose $R]
      }
+```
+- Draw a rectangle on a canvas with **native list handling** 
 
-Draw a rectangle on a canvas with **native list handling** 
+```tcl
+    .c create rect [($x, $y, $x+100, $y+100)]
+```
 
-    .c create rect [($x, $y, $x+100, $y+100)] 
+- Tensorial product, with **native list handling** and **TIP 282**
 
-Tensorial product, with **native list handling** and **TIP 282**
-
+```tcl
      proc TensorialProduct {V U} {
        lassign $V x y z
        lassign $U u v w
@@ -126,6 +157,7 @@ Tensorial product, with **native list handling** and **TIP 282**
      }
      puts [TensorialProduct {1 2 3} {3 2 1}]
      # {{3 2 1} {6 4 2} {9 6 3}}
+```
 
 ## Implementation
 The code is made on top of Tcl9.1a, in separated repositories, one for the main expr shorhand, the other one for the other optional features. Files tclsh.exe are compiled under cygwin above Win10 with gcc.
@@ -217,6 +249,7 @@ It can be found at [tcl-ExprShorthand-index-list-TIP282](https://github.com/flor
 ## Copyright
 
 This document has been placed in the public domain.
+
 
 
 
