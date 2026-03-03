@@ -39,7 +39,7 @@ This will create in the array 'A' a key whose value will be the result of the co
 - **Native list handling** :
 
 ```tcl
-         set m [((1, 0, 0), (0, 1, 0),(0, 0, 1))]
+         set m [((1, 0, 0), (0, 1, 0), (0, 0, 1))]
 ```
 
 will be made equivalent to :
@@ -50,14 +50,16 @@ will be made equivalent to :
 
 - Inclusion of **[TIP 282](https://core.tcl-lang.org/tips/doc/trunk/tip/282.md.html) proposals** :
   
-As well as a little improvement to allow us to use a bareword for variable name on the left side of the assignement operator. With this, we can write :
+And a little improvement to allow us to use a bareword for variable name on the left side of the assignement operator. 
+
+Then, we can write :
 
 ```tcl
          set L [( x = 1; ($x, $x*2, $x*3) )]
 		 # set x to 1 and set L to {1 2 3}
 ```
 
-## Example :
+## Examples :
 - Setting a variable :
 ```tcl
 set bright [($red*0.3 + $green*0.59 + $blue*0.11)]
@@ -72,7 +74,7 @@ set bright [($red*0.3 + $green*0.59 + $blue*0.11)]
     }
 ```
 - Eratosthenes sieve :
-  - With basic shorthand :
+  - With **basic shorthand** :
   ```tcl
      proc sieve {n} {
        set L [lseq $n]
@@ -87,7 +89,7 @@ set bright [($red*0.3 + $green*0.59 + $blue*0.11)]
     }
    ```
 
-   - with TIP282 integration :
+   - with **TIP 282** integration (illustrating with `for` and `while`):
    ```tcl
      proc sieve {n} {
         set L [lseq $n]
@@ -101,38 +103,88 @@ set bright [($red*0.3 + $green*0.59 + $blue*0.11)]
     }
    ```
 
-- A matrix product **with native list handling**
+- Matrix calculus and affine transform example **with native list handling** and **TIP 282**
 
 ```tcl
-    proc MatrixTranspose {M} {
+
+proc MatrixTranspose {M} {
+    if {[llength [lindex $M 0]] == 1} {
+        # M is a vector
+        return $M
+    }
     set i 1
     foreach row $M {
-    	lassign $row m${i}1 m${i}2 m${i}3
-    	incr i
+        lassign $row m${i}1 m${i}2 m${i}3
+        incr i
     }
-    return [(
-	     ($m11, $m21, $m31),
-	     ($m12, $m22, $m32),
-	     ($m13, $m23, $m33)
-	  )]
+
+    return  [( $i == 2 ?
+               (# it was a false matrix case : there was just one row after all.
+                $m11, $m12, $m13 
+               ) : (
+                ($m11, $m21, $m31),
+                ($m12, $m22, $m32),
+                ($m13, $m23, $m33)
+                )  )]
+}
+
+proc MatrixProduct {M1 M2} {
+    set i 0
+    foreach row $M1 {
+        lassign $row m${i}0 m${i}1 m${i}2
+        incr i
     }
-    proc MatrixProduct {M1 M2} {
-     set i 1
-     foreach row $M1 {
-         lassign $row m${i}1 m${i}2 m${i}3
-         incr i
-     }
-     set R []
-     foreach v [MatrixTranspose $M2] {
-          lassign $v x y z
-          lappend R [(
-             $m11*$x + $m12*$y + $m13*$z,
-             $m21*$x + $m22*$y + $m23*$z,
-             $m31*$x + $m32*$y + $m33*$z
-          )]
-       }
-       return [MatrixTranspose $R]
-     }
+        
+    set R []
+    foreach v [MatrixTranspose $M2] {
+         lassign $v x y z
+         lappend R [( [llength $v] == 1 ?
+                      (vector = 1; # M2 is a vector !
+                       y = [lindex $M2 1];
+                       z = [lindex $M2 2];
+                       ($m00*$x + $m01*$y + $m02*$z,
+                        $m10*$x + $m11*$y + $m12*$z,
+                        $m20*$x + $m21*$y + $m22*$z)
+                       ) :
+                      (vector = 0; # M2 was a matrix.
+                      ($m00*$x + $m01*$y + $m02*$z,
+                       $m10*$x + $m11*$y + $m12*$z,
+                       $m20*$x + $m21*$y + $m22*$z)
+                       ))]
+         if {$vector == 1} {
+               return {*}$R
+         }
+    }
+    return {*}$R
+}
+
+# Affine transforms examples :
+
+proc translation {dx dy} {
+    return [( 	(1, 0, $dx),
+              	(0, 1, $dy),
+              	(0, 0,  1 )    )]
+}
+
+proc rotation {angle} {
+    return [(  angle = $angle/180.0*acos(-1);
+				(cos($angle), -sin($angle), 0),
+               	(sin($angle),  cos($angle), 0),
+               	(     0     ,      0      , 1)       )]
+}
+
+set Point  [(	100*cos(30.0/180*acos(-1)),
+				50,
+				1 )]
+
+set RotatedPoint [MatrixProduct [rotation -30] $Point]
+set TranslatedPoint [MatrixProduct [translation -100 0] $RotatedPoint]
+
+puts RotatedPoint\ :\ $RotatedPoint
+puts TranslatedPoint\ :\ $TranslatedPoint
+
+# RotatedPoint : {100.00000000000001 7.105427357601002e-15 1.0}
+# TranslatedPoint : {1.4210854715202004e-14 7.105427357601002e-15 1.0}
 ```
 - Draw a rectangle on a canvas with **native list handling** 
 
@@ -161,6 +213,8 @@ set bright [($red*0.3 + $green*0.59 + $blue*0.11)]
 
 ## Implementation
 The code is made on top of Tcl9.1a, in separated repositories, one for the main expr shorhand, the other one for the other optional features. Files tclsh.exe are compiled under cygwin above Win10 with gcc.
+
+*Do note that all exemples written in the previous section have been tested and are working in the [tcl-ExprShorthand-index-list-TIP282](https://github.com/florentis/tcl-ExprShorthand-index-list-TIP282) implementation.*
 
 ### Code for main shorthand
 It can be found at [tcl-ExprShorthand](https://github.com/florentis/tcl-ExprShorthand). It should allow this syntax :
@@ -249,6 +303,7 @@ It can be found at [tcl-ExprShorthand-index-list-TIP282](https://github.com/flor
 ## Copyright
 
 This document has been placed in the public domain.
+
 
 
 
