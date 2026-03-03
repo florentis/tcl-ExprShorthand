@@ -150,13 +150,13 @@ set bright [($red*0.3 + $green*0.59 + $blue*0.11)]
        return [( a11 = $x*$u;  a12 = $x*$v;  a13 = $x*$w;
 	             a21 = $y*$u;  a22 = $y*$v;  a23 = $y*$w;
 	             a31 = $z*$u;  a32 = $z*$v;  a33 = $z*$w;
-	             (($a11, $a12, $a13),
-	              ($a21, $a22, $a23),
-	              ($a31, $a32, $a33))
+	             ($a11, $a12, $a13),
+	             ($a21, $a22, $a23),
+	             ($a31, $a32, $a33)
 		)]
      }
      puts [TensorialProduct {1 2 3} {3 2 1}]
-     # {{3 2 1} {6 4 2} {9 6 3}}
+     # {3 2 1} {6 4 2} {9 6 3}
 ```
 
 ## Implementation
@@ -249,6 +249,7 @@ It can be found at [tcl-ExprShorthand-index-list-TIP282](https://github.com/flor
 ## Copyright
 
 This document has been placed in the public domain.
+
 
 
 
