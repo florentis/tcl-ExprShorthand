@@ -59,6 +59,15 @@ Then, we can write :
 		 # set x to 1 and set L to {1 2 3}
 ```
 
+- **Scripted expressions** :
+
+  Every value which begins with a `(` and finishes by a `)` will be evaluated, or compiled, as an expression when taken as a script by a command.
+
+  ```tcl
+  eval {(1+1)}; # return 2
+  ```
+  It should work with `if`, `while`, `for`, `foreach`, `lmap`, `eval`, `apply`, `proc`,...etc
+
 ## Examples :
 - Setting a variable :
 ```tcl
@@ -211,6 +220,20 @@ puts TranslatedPoint\ :\ $TranslatedPoint
      # {3 2 1} {6 4 2} {9 6 3}
 ```
 
+- Matrix transpose (2) : with **main shorthand**, **native list handling**, **TIP 282**, **scripted expression**
+
+```tcl
+proc transpose {M} {
+    set MAP {{a b c} {d e f} {g h i}}
+    lmap row1 $MAP row2 $M {
+    	lmap var $row1 val $row2 {($var = double($val))}
+    }
+    return [( 	($a, $d, $g),
+	        	($b, $e, $h),
+	      		($c, $f, $i) )]
+}
+
+```
 ## Implementation
 The code is made on top of Tcl9.1a, in separated repositories, one for the main expr shorhand, the other one for the other optional features. Files tclsh.exe are compiled under cygwin above Win10 with gcc.
 
@@ -267,6 +290,20 @@ It can be found at [tcl-ExprShorthand-index-list-TIP282](https://github.com/flor
 * In tclParse.c :
   * The code from the patch of TIP282
   * In *ParseExpr* : The code to detect if a bareword is followed by a '=' sign and to add it to the literal list, so that it can be taken as a variable name during bytecode execution.
+ 
+### Script shorthand
+
+It can be found at [tcl-ExprShorthand-index-list-TIP282-script](https://github.com/florentis/tcl9.1-shorthand-index-list-TIP282-script). It includes all the previous additions, as well as the changes made for *scripted expression*. In a context where a script has to be compiled (proc, lambda), the shorthand should allow this syntax :
+
+         proc P args {( *expression* )}
+
+#### Principles of the changes
+* In tclParse.c :
+	* In *Tcl_ParseCommand* : At the begining, detect if the string begins with a `(` and finishes with a `)` then fills the parse structure with a TCL_TOKEN_SUB_EXPR, containing a TCL_TOKEN_SIMPLE_WORD.
+ * In tclCompile.c :
+ 	* In *TclSetBytcodesFromAny* : Check if the string begins with a `(` and finishes with a `)`, then compile it as an *expression*. Avoid optimisation.
+   	* In *TclCompileScript* :  Check if Tcl_ParseCommand returns a TCL_TOKEN_SUB_EXPR token. If so, compile its component as an expression
+
 
 ## Incompatibilities :
  * Main shorthand : Any proc which is named '(' will be shadowed by the shorthand. However, it will still be possible to use it, either by protecting it by a backslash '\\(', or simply, but less readable, by inserting a space between the open-bracket and the open-parenthese.
@@ -276,10 +313,6 @@ It can be found at [tcl-ExprShorthand-index-list-TIP282](https://github.com/flor
  * Index shorthand : As Tcl9 now forbid parentheses into array index, there should be none.
  
 ## Further developpements ideas :
-
-- **Script shorthand** : In a context where a script has to be compiled (proc, lambda), the shorthand could eventually allow this syntax : 
-
-         proc P args {( *expression* )}
 
 - Allow barewords as variables ?
 
@@ -300,9 +333,15 @@ It can be found at [tcl-ExprShorthand-index-list-TIP282](https://github.com/flor
 
         set Modulus [( $z {::math::complexnumbers}* {::math::complexnumbers}conj($z) )]
 
+- Implement the `{*}` prefix operator in expr to returns the prefixed word as a comma separated list. 
+
+  	set L [list 1 2 3]
+    set min [expr {min({*}$L)}]
+  
 ## Copyright
 
 This document has been placed in the public domain.
+
 
 
 
