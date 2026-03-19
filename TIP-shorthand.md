@@ -112,7 +112,7 @@ set bright [($red*0.3 + $green*0.59 + $blue*0.11)]
     }
    ```
 
-- Matrix calculus and affine transform example **with native list handling** and **TIP 282**
+- Matrix calculus and affine transform example **with native list handling**, **script expression** and **TIP 282**
 
 ```tcl
 
@@ -147,53 +147,49 @@ proc MatrixProduct {M1 M2} {
     set R []
     foreach v [MatrixTranspose $M2] {
          lassign $v x y z
-         lappend R [( [llength $v] == 1 ?
-                      (vector = 1; # M2 is a vector !
-                       y = [lindex $M2 1];
-                       z = [lindex $M2 2];
-                       ($m00*$x + $m01*$y + $m02*$z,
-                        $m10*$x + $m11*$y + $m12*$z,
-                        $m20*$x + $m21*$y + $m22*$z)
-                       ) :
-                      (vector = 0; # M2 was a matrix.
+         lappend R [if {[llength $v] == 1} then {(
+                      vector = 1; # M2 is a vector !
+					  y = [lindex $M2 1];
+                      z = [lindex $M2 2];
                       ($m00*$x + $m01*$y + $m02*$z,
                        $m10*$x + $m11*$y + $m12*$z,
                        $m20*$x + $m21*$y + $m22*$z)
-                       ))]
+                    )} else {( 
+                      vector = 0; # M2 was a matrix.
+                      ($m00*$x + $m01*$y + $m02*$z,
+                       $m10*$x + $m11*$y + $m12*$z,
+                       $m20*$x + $m21*$y + $m22*$z)
+					)}]
          if {$vector == 1} {
-               return {*}$R
+               return $R
          }
     }
-    return {*}$R
+    return $R
 }
 
 # Affine transforms examples :
 
-proc translation {dx dy} {
-    return [( 	(1, 0, $dx),
-              	(0, 1, $dy),
-              	(0, 0,  1 )    )]
-}
+proc translation {dx dy} {(
+  (1, 0, $dx),
+  (0, 1, $dy),
+  (0, 0,  1 )  
+)}
 
-proc rotation {angle} {
-    return [(  angle = $angle/180.0*acos(-1);
-				(cos($angle), -sin($angle), 0),
-               	(sin($angle),  cos($angle), 0),
-               	(     0     ,      0      , 1)       )]
-}
+proc rotation {angle} {(
+   angle = $angle/180.0*acos(-1);
+   ((cos($angle), -sin($angle), 0),
+    (sin($angle),  cos($angle), 0),
+    (     0     ,      0      , 1))
+)}
 
-set Point  [(	100*cos(30.0/180*acos(-1)),
-				50,
-				1 )]
+set Point  [( 100*cos(30.0/180*acos(-1)), 50, 1 )]
 
 set RotatedPoint [MatrixProduct [rotation -30] $Point]
 set TranslatedPoint [MatrixProduct [translation -100 0] $RotatedPoint]
 
-puts RotatedPoint\ :\ $RotatedPoint
-puts TranslatedPoint\ :\ $TranslatedPoint
+puts RotatedPoint\ :\ $RotatedPoint ; # RotatedPoint : {100.00000000000001 7.105427357601002e-15 1.0}
+puts TranslatedPoint\ :\ $TranslatedPoint ; # TranslatedPoint : {1.4210854715202004e-14 7.105427357601002e-15 1.0}
 
-# RotatedPoint : {100.00000000000001 7.105427357601002e-15 1.0}
-# TranslatedPoint : {1.4210854715202004e-14 7.105427357601002e-15 1.0}
 ```
 - Draw a rectangle on a canvas with **native list handling** 
 
@@ -201,20 +197,15 @@ puts TranslatedPoint\ :\ $TranslatedPoint
     .c create rect [($x, $y, $x+100, $y+100)]
 ```
 
-- Tensorial product, with **native list handling** and **TIP 282**
+- Tensorial product, with **script expression**
 
 ```tcl
      proc TensorialProduct {V U} {
-       lassign $V x y z
-       lassign $U u v w
-
-       return [( a11 = $x*$u;  a12 = $x*$v;  a13 = $x*$w;
-	             a21 = $y*$u;  a22 = $y*$v;  a23 = $y*$w;
-	             a31 = $z*$u;  a32 = $z*$v;  a33 = $z*$w;
-	             ($a11, $a12, $a13),
-	             ($a21, $a22, $a23),
-	             ($a31, $a32, $a33)
-		)]
+        lmap u $U {
+           lmap v $V {(
+              $u * $v                   
+           )}
+        }
      }
      puts [TensorialProduct {1 2 3} {3 2 1}]
      # {3 2 1} {6 4 2} {9 6 3}
