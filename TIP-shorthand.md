@@ -202,11 +202,9 @@ puts TranslatedPoint\ :\ $TranslatedPoint ; # TranslatedPoint : {1.4210854715202
 ```tcl
      proc TensorialProduct {V U} {
         lmap u $U {
-           lmap v $V {(
-              $u * $v                   
-           )}
+           lmap v $V {( $u * $v )}
         }
-     }
+	 }
      puts [TensorialProduct {1 2 3} {3 2 1}]
      # {3 2 1} {6 4 2} {9 6 3}
 ```
@@ -223,7 +221,18 @@ proc transpose {M} {
 	        	($b, $e, $h),
 	      		($c, $f, $i) )]
 }
+```
 
+- Determinant : with **TIP282 assignement**, **scripted expression**, **main shorthand** :
+
+```tcl
+proc determinant {M} {
+    set MAP {{a b c} {d e f} {g h i}}
+    lmap row1 $MAP row2 $M {
+        lmap var $row1 val $row2 {($var = $val)}
+    }
+    return [($a*$e*$i + $b*$f*$g + $c*$d*$h - $c*$e*$g - $b*$d*$i - $a*$f*$h)]
+}
 ```
 ## Implementation
 The code is made on top of Tcl9.1a, in separated repositories, one for the main expr shorhand, the other one for the other optional features. Files tclsh.exe are compiled under cygwin above Win10 with gcc.
