@@ -28,13 +28,6 @@ This corresponds to this new rule of substitution :
 > * **Mathematical expression substitution** : If the first caracter of a word is an open-bracket and is immediately followed by an open-parenthese, then Tcl performs a *Mathematical expression substitution*. The expression has to follows the rules of the *expr* language. It must be closed by a closed-parenthese immediately followed by a closed-bracket. 
 
 ## Options
-- **Shorthand in array indexes** : In the context of an array variable index, the shorthand will allow this syntax :
-
-```tcl
-         set A(( *expression* )) 1
-```
-
-This will create in the array 'A' a key whose value will be the result of the computed expression.
 
 - **Native list handling** :
 
@@ -61,7 +54,7 @@ Then, we can write :
 
 - **Scripted expressions** :
 
-  Every value which begins with a `(` and finishes by a `)` will be evaluated, or compiled, as an expression when taken as a script by a command.
+  Every script value which begins with a `(` and finishes by a `)` will be evaluated, or compiled, as an expression when taken as a script by a command.
 
   ```tcl
   eval {(1+1)}; # return 2
@@ -197,7 +190,7 @@ puts TranslatedPoint\ :\ $TranslatedPoint ; # TranslatedPoint : {1.4210854715202
     .c create rect [($x, $y, $x+100, $y+100)]
 ```
 
-- Tensorial product, with **script expression**
+- Tensorial product, with **expression script**
 
 ```tcl
      proc TensorialProduct {V U} {
@@ -209,7 +202,7 @@ puts TranslatedPoint\ :\ $TranslatedPoint ; # TranslatedPoint : {1.4210854715202
      # {3 2 1} {6 4 2} {9 6 3}
 ```
 
-- Matrix transpose (2) : with **main shorthand**, **native list handling**, **TIP 282**, **scripted expression**
+- Matrix transpose (2) : with **main shorthand**, **native list handling**, **TIP 282**, **expression script**
 
 ```tcl
 proc transpose {M} {
@@ -223,7 +216,7 @@ proc transpose {M} {
 }
 ```
 
-- Determinant : with **TIP282 assignement**, **scripted expression**, **main shorthand** :
+- Determinant : with **TIP282 assignement**, **expression script**, **main shorthand** :
 
 ```tcl
 proc determinant {M} {
@@ -235,7 +228,7 @@ proc determinant {M} {
 }
 ```
 ## Implementation
-The code is made on top of Tcl9.1a, in separated repositories, one for the main expr shorhand, the other one for the other optional features. Files tclsh.exe are compiled under cygwin above Win10 with gcc.
+The code is made on top of Tcl9.04, in separated repositories, one for the main expr shorhand, the other one for the other optional features. Files tclsh.exe are compiled under cygwin above Win10 with gcc.
 
 *Do note that all exemples written in the previous section have been tested and are working in the [tcl-ExprShorthand-index-list-TIP282](https://github.com/florentis/tcl-ExprShorthand-index-list-TIP282) implementation.*
 
